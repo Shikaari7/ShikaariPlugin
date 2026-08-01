@@ -5,7 +5,6 @@ import os
 import sys
 from pathlib import Path
 
-import pyroaddon  # pylint: disable=unused-import
 from pyrogram import Client
 from pyrogram.enums import ParseMode
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
