@@ -25,8 +25,8 @@ def home():
     return "Pbxbot is alive and running fine!"
 
 def run_flask():
-    # Render se PORT pick karega (default 10000)
-    port = int(os.environ.get("PORT", 10000))
+    # Render se PORT pick karega (default 8080)
+    port = int(os.environ.get("PORT", 8080))
     
     # Extra Flask logs hide karne ke liye
     import logging
