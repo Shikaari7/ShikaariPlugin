@@ -24,8 +24,9 @@ from Pbxbot.functions.scraping import is_valid_url
 
 from . import Config, HelpMenu, Symbols, db, handler, Pbxbot, on_message
 
+# FIXED: 'http' mode added to bypass invalid SQLite URI error with SQLAlchemy 2.0+
+imdb = Cinemagoer("http")
 
-imdb = Cinemagoer()
 mov_titles = [
     "localized title",
     "canonical title",
@@ -36,7 +37,7 @@ mov_titles = [
 ]
 
 final_msg = """
-<b>✦ 𝖳𝖬𝖴{}00𝖱𝖫 𝖨𝗇𝖿𝗈 𝖦𝖾𝗇𝗋𝖾𝗌 𝖱𝖺𝗍𝗂𝗇𝗀 𝖣𝗂�𝖾𝖼�𝗍��:</b> <code></code>
+<b>✦ 𝖳𝖨𝖳𝖫𝖤:</b> <code>{0}</code>
 <b>✦ 𝖨𝖬𝖣𝖻 𝖴𝖱𝖫:</b> <a href='https://www.imdb.com/title/tt{1}'>Click here.</a>
 <b>✦ 𝖠𝗂𝗋𝖽𝖺𝗍𝖾:</b> <code>{2}</code>
 <b>✦ 𝖦𝖾𝗇𝗋𝖾𝗌:</b> <code>{3}</code>
@@ -63,7 +64,7 @@ telegraph_msg = """
 <b>✦ 𝖢𝗈𝗎𝗇𝗍𝗋𝗒:</b> <code>{11}</code>
 <b>✦ 𝖫𝖺𝗇𝗀𝗎𝖺𝗀𝖾:</b> <code>{12}</code>
 <b>✦ 𝖡𝗈𝗑 𝖮𝖿𝖿𝗂𝖼𝖾:</b> <code>{13}</code>
-<b>✦ 𝖯𝗅𝗈𝗍𝗋𝗌14𝖡𝗈𝗑 𝖮𝖿𝖿𝗂𝖼𝖾:</b> <
+<b>✦ 𝖯𝗅𝗈𝗍:</b> <code>{14}</code>
 
 <b>🍀 @PBX_CHAT</b>
 """
@@ -162,7 +163,6 @@ async def reverseSearch(_, message: Message):
         )
     else:
         return await Pbx.edit("No results found.")
-
 
     googleImage = googleimagesdownload()
     to_send = []
@@ -279,7 +279,7 @@ async def wordMeaning(_, message: Message):
     data: dict = response.json()[0]
 
     outStr = ""
-    outStr += f"**📖W:ord** `{data.get('word', search_query)}`\n"
+    outStr += f"**📖 Word:** `{data.get('word', search_query)}`\n"
     outStr += f"**🔊 Phonetic:** `{data.get('phonetic', 'Not Found')}`\n"
 
     for meaning in data.get("meanings", []):
@@ -287,13 +287,13 @@ async def wordMeaning(_, message: Message):
         for definition in meaning.get("definitions", []):
             outStr += f"    {Symbols.check_mark} `{definition.get('definition', 'Not Found')}`\n"
         synonyms = meaning.get("synonyms", [])
-        outStr += "**👍 Synonyms:** " + ", ".join(synonyms) if synonyms else "Not Found"
+        outStr += "**👍 Synonyms:** " + (", ".join(synonyms) if synonyms else "Not Found")
         outStr += "\n"
         antonyms = meaning.get("antonyms", [])
-        outStr += "**👎 Antonyms:** " + ", ".join(antonyms) if antonyms else "Not Found"
+        outStr += "**👎 Antonyms:** " + (", ".join(antonyms) if antonyms else "Not Found")
         outStr += "\n"
 
-    audio = data.get("phonetics", [])[0].get("audio", "")
+    audio = data.get("phonetics", [])[0].get("audio", "") if data.get("phonetics") else ""
     if audio:
         await Pbx.reply_audio(audio, caption=outStr)
         await Pbx.delete()
@@ -522,10 +522,10 @@ HelpMenu("google").add(
     "voice I'm Helly and this is an Text to Speech Example.",
     "An alias of 'tts' can also be used.",
 ).add(
-    "movie", #Bugged: to-be-fixed
+    "movie",
     "<movie name>",
     "Sends the details of the given movie.",
-    "movie the shawshak redemption",
+    "movie the shawshank redemption",
 ).info(
     "Every Google command you need."
 ).done()
