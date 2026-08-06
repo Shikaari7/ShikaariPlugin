@@ -31,3 +31,5 @@ Unidecode
 wikipedia
 py-tgcalls
 yt-dlp
+flask==3.1.3
+speedtest-cli
