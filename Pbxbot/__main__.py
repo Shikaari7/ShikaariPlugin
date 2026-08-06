@@ -1,6 +1,8 @@
+import os
 import asyncio
 import traceback
-
+from threading import Thread
+from flask import Flask
 from pyrogram import idle
 
 from Pbxbot import __version__
@@ -14,6 +16,31 @@ from Pbxbot.core import (
 )
 from Pbxbot.functions.tools import initialize_git
 from Pbxbot.functions.utility import BList, Flood, TGraph
+
+# ==================== FLASK KEEP-ALIVE SETUP ====================
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Pbxbot is alive and running fine!"
+
+def run_flask():
+    # Render se PORT pick karega (default 10000)
+    port = int(os.environ.get("PORT", 10000))
+    
+    # Extra Flask logs hide karne ke liye
+    import logging
+    log = logging.getLogger("werkzeug")
+    log.setLevel(logging.ERROR)
+    
+    app.run(host="0.0.0.0", port=port)
+
+def keep_alive():
+    server_thread = Thread(target=run_flask)
+    server_thread.daemon = True
+    server_thread.start()
+    print("✓ Flask Keep-Alive Server Started")
+# ================================================================
 
 
 async def main():
@@ -72,4 +99,6 @@ async def main():
 
 
 if __name__ == "__main__":
+    # Bot start hone se pehle Flask server background me chalu hoga
+    keep_alive()
     asyncio.run(main())
